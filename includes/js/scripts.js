@@ -9,6 +9,8 @@
 
   _wpcf7 = $.extend({ cached: 0 }, _wpcf7);
 
+  var margin = 120;
+
   $(function() {
     _wpcf7.supportHtml5 = $.wpcf7SupportHtml5();
     $('div.wpcf7 > form').wpcf7InitForm();
@@ -32,7 +34,7 @@
       dataType: 'json',
       success: $.wpcf7AjaxSuccess,
       error: function(xhr, status, error, $form) {
-        $form.find('.screen-reader-response').html(error.message).attr('role', 'alert');
+        $form.find('.screen-reader-response').html(error.message).attr('role', 'alert').addClass('error').slideDown('fast');
       }
     });
 
@@ -82,7 +84,7 @@
     var $responseOutput = $form.parent().find('.screen-reader-response');
     $form.wpcf7ClearResponseOutput();
 
-    $form.find('.wpcf7-form-control').removeClass('wpcf7-not-valid');
+    $form.find('.wpcf7-form-control').removeClass('error');
     $form.removeClass('invalid spam sent failed');
 
     if (data.captcha) {
@@ -98,27 +100,26 @@
       $.each(data.invalids, function(i, n) {
         var $inp = $form.find(n.into);
         $inp.wpcf7NotValidTip(n.message);
-        $inp.find('.wpcf7-form-control').addClass('wpcf7-not-valid');
+        $inp.find('.wpcf7-form-control').addClass('error');
         $inp.find('[aria-invalid]').attr('aria-invalid', 'true');
       });
 
-      $responseOutput.addClass('wpcf7-validation-errors');
+      $responseOutput.addClass('error');
       $form.addClass('invalid');
 
       $(data.into).trigger('invalid.wpcf7');
 
     } else if (1 == data.spam) {
       // SPAM
-      $responseOutput.addClass('wpcf7-spam-blocked');
+      $responseOutput.addClass('spam-blocked error');
       $form.addClass('spam');
 
       $(data.into).trigger('spam.wpcf7');
 
     } else if (1 == data.mailSent) {
       // SEND MAIL SECCESS
-      $responseOutput.addClass('wpcf7-mail-sent-ok');
+      $responseOutput.addClass('success');
       $form.addClass('sent');
-
       if (data.onSentOk){
         // TODO: check eval(n);
         $.each(data.onSentOk, function(i, n) { eval(n); });
@@ -128,7 +129,7 @@
 
     } else {
       // Other ERROR
-      $responseOutput.addClass('wpcf7-mail-sent-ng');
+      $responseOutput.addClass('mail-sent-ng error');
       $form.addClass('failed');
 
       $(data.into).trigger('mailfailed.wpcf7');
@@ -136,6 +137,7 @@
 
     if (data.onSubmit){
       // TODO: check eval(n);
+      console.log(n);
       $.each(data.onSubmit, function(i, n) {eval(n); });
     }
 
@@ -143,14 +145,22 @@
 
     if (1 == data.mailSent){
       $form.resetForm();
+      $form.find('input:checkbox').trigger('checkbox.changed');
+      $form.find('input:radio').trigger('radio.changed');
+      $form.wpcf7ToggleSubmit();
+      setTimeout(function() {
+        $responseOutput.slideUp(300, function() {
+          $responseOutput.hide().empty().removeClass('success wpcf7-mail-sent-ng spam-blocked error').removeAttr('role');
+        });
+      }, 5000);
     }
 
     $form.find('[placeholder].placeheld').each(function(i, n) {
       $(n).val($(n).attr('placeholder'));
     });
 
-    $responseOutput.append(data.message).slideDown('fast');
-    $responseOutput.attr('role', 'alert').focus();
+    $('html, body').scrollTop($responseOutput.offset().top - margin);
+    $responseOutput.append(data.message).attr('role', 'alert').slideDown('fast');
   };
 
   $.fn.wpcf7ExclusiveCheckbox = function() {
@@ -195,7 +205,7 @@
         $form = $(this).find('form').first();
       }
 
-      if ($form.hasClass('wpcf7-acceptance-as-validation')){
+      if ($form.hasClass('wpcf7-acceptance-as-validation')) {
         return;
       }
 
@@ -247,7 +257,7 @@
     });
   };
 
-  // Show Error Message
+  // Show Error Tooltip
   $.fn.wpcf7NotValidTip = function(message) {
     return this.each(function() {
       var $into = $(this);
@@ -323,7 +333,7 @@
   $.fn.wpcf7ClearResponseOutput = function() {
     return this.each(function() {
       var $form = $(this);
-      $form.parent().find('.screen-reader-response').hide().empty().removeClass('wpcf7-mail-sent-ok wpcf7-mail-sent-ng wpcf7-validation-errors wpcf7-spam-blocked').removeAttr('role');
+      $form.parent().find('.screen-reader-response').hide().empty().removeClass('success wpcf7-mail-sent-ng spam-blocked error').removeAttr('role');
       $form.find('span.wpcf7-not-valid-tip').remove();
       $form.find('.ajax-loader').removeClass('loading');
     });
