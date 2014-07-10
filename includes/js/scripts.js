@@ -73,27 +73,31 @@
   };
 
   $.wpcf7AjaxSuccess = function(data, status, xhr, $form) {
-    if (! $.isPlainObject(data) || $.isEmptyObject(data))
+    if (! $.isPlainObject(data) || $.isEmptyObject(data)) {
       return;
+    }
 
     var $responseOutput = $form.find('div.wpcf7-response-output');
 
     $form.wpcf7ClearResponseOutput();
 
-    $form.find('.wpcf7-form-control').removeClass('wpcf7-not-valid');
+    $form.find('.wpcf7-form-control').removeClass('error');
     $form.removeClass('invalid spam sent failed');
 
-    if (data.captcha)
+    if (data.captcha) {
       $form.wpcf7RefillCaptcha(data.captcha);
+    }
 
-    if (data.quiz)
+    if (data.quiz) {
       $form.wpcf7RefillQuiz(data.quiz);
+    }
 
     if (data.invalids) {
       $.each(data.invalids, function(i, n) {
-        $form.find(n.into).wpcf7NotValidTip(n.message);
-        $form.find(n.into).find('.wpcf7-form-control').addClass('wpcf7-not-valid');
-        $form.find(n.into).find('[aria-invalid]').attr('aria-invalid', 'true');
+        var $inp = $form.find(n.into);
+        $inp.wpcf7NotValidTip(n.message);
+        $inp.find('.wpcf7-form-control').addClass('error');
+        $inp.find('[aria-invalid]').attr('aria-invalid', 'true');
       });
 
       $responseOutput.addClass('wpcf7-validation-errors');
@@ -242,10 +246,11 @@
     });
   };
 
+  // Show Error Message
   $.fn.wpcf7NotValidTip = function(message) {
     return this.each(function() {
       var $into = $(this);
-      $into.hide().append('<span role="alert" class="wpcf7-not-valid-tip">' + message + '</span>').slideDown('fast');
+      $into.hide().append('<span role="alert" class="wpcf7-not-valid-tip messageLabel error">' + message + '</span>').slideDown('fast');
 
       if ($into.is('.use-floating-validation-tip *')) {
         $('.wpcf7-not-valid-tip', $into).mouseover(function() {
@@ -331,6 +336,7 @@
       var $response = $form.siblings('.screen-reader-response').first();
       $response.append(data.message);
 
+      /* エラーメッセージの詳細は表示しない
       if (data.invalids) {
         var $invalids = $('<ul></ul>');
         var $li;
@@ -346,6 +352,7 @@
 
         $response.append($invalids);
       }
+      */
 
       $response.attr('role', 'alert').focus();
     }
