@@ -185,26 +185,37 @@
 
   $.fn.wpcf7ToggleSubmit = function() {
     return this.each(function() {
-      var form = $(this);
-      if (this.tagName.toLowerCase() != 'form')
-        form = $(this).find('form').first();
+      var $form = $(this);
+      if (this.tagName.toLowerCase() != 'form'){
+        $form = $(this).find('form').first();
+      }
 
-      if (form.hasClass('wpcf7-acceptance-as-validation'))
+      if ($form.hasClass('wpcf7-acceptance-as-validation')){
         return;
+      }
 
-      var submit = form.find('input:submit');
-      if (! submit.length) return;
+      var $submit = $form.find('input:submit, .fmSubmit');
+      if (! $submit.length) {
+        return;
+      }
 
-      var acceptances = form.find('input:checkbox.wpcf7-acceptance');
-      if (! acceptances.length) return;
+      var $acceptances = $form.find('input:checkbox.wpcf7-acceptance');
+      if (! $acceptances.length) {
+        return;
+      }
 
-      submit.removeAttr('disabled');
-      acceptances.each(function(i, n) {
+      var desabled = false;
+      $acceptances.each(function(i, n) {
         n = $(n);
-        if (n.hasClass('wpcf7-invert') && n.is(':checked')
-          || ! n.hasClass('wpcf7-invert') && ! n.is(':checked'))
-          submit.attr('disabled', 'disabled');
+        if (n.hasClass('wpcf7-invert') && n.is(':checked') || ! n.hasClass('wpcf7-invert') && ! n.is(':checked')){
+          desabled = true;
+        }
       });
+      if(desabled === true) {
+        $submit.addClass('disabled').attr('disabled', 'disabled');
+      } else {
+        $submit.removeClass('disabled').removeAttr('disabled');
+      }
     });
   };
 
