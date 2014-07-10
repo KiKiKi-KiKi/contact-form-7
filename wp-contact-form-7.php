@@ -1,7 +1,13 @@
 <?php
 /*
-Plugin Name: Contact Form 7
-Plugin URI: http://contactform7.com/
+Plugin Name: Contact Form 7 extend
+Plugin URI: https://github.com/chaika-design/Contact-Form-7
+Author: Chaika
+*/
+
+/*
+// original
+Plugin-URI: http://contactform7.com/
 Description: Just another contact form plugin. Simple but flexible.
 Author: Takayuki Miyoshi
 Author URI: http://ideasilo.wordpress.com/
