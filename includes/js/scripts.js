@@ -29,8 +29,7 @@
       dataType: 'json',
       success: $.wpcf7AjaxSuccess,
       error: function(xhr, status, error, $form) {
-        var e = $('<div class="ajax-error"></div>').text(error.message);
-        $form.after(e);
+        $form.find('.screen-reader-response').html(error.message).attr('role', 'alert');
       }
     });
 
@@ -77,11 +76,10 @@
       return;
     }
 
-    var $responseOutput = $form.find('div.wpcf7-response-output');
-
+    var $responseOutput = $form.parent().find('.screen-reader-response');
     $form.wpcf7ClearResponseOutput();
 
-    $form.find('.wpcf7-form-control').removeClass('error');
+    $form.find('.wpcf7-form-control').removeClass('wpcf7-not-valid');
     $form.removeClass('invalid spam sent failed');
 
     if (data.captcha) {
@@ -93,10 +91,11 @@
     }
 
     if (data.invalids) {
+      // ERROR
       $.each(data.invalids, function(i, n) {
         var $inp = $form.find(n.into);
         $inp.wpcf7NotValidTip(n.message);
-        $inp.find('.wpcf7-form-control').addClass('error');
+        $inp.find('.wpcf7-form-control').addClass('wpcf7-not-valid');
         $inp.find('[aria-invalid]').attr('aria-invalid', 'true');
       });
 
@@ -106,12 +105,14 @@
       $(data.into).trigger('invalid.wpcf7');
 
     } else if (1 == data.spam) {
+      // SPAM
       $responseOutput.addClass('wpcf7-spam-blocked');
       $form.addClass('spam');
 
       $(data.into).trigger('spam.wpcf7');
 
     } else if (1 == data.mailSent) {
+      // SEND MAIL SECCESS
       $responseOutput.addClass('wpcf7-mail-sent-ok');
       $form.addClass('sent');
 
@@ -123,6 +124,7 @@
       $(data.into).trigger('mailsent.wpcf7');
 
     } else {
+      // Other ERROR
       $responseOutput.addClass('wpcf7-mail-sent-ng');
       $form.addClass('failed');
 
@@ -144,9 +146,7 @@
     });
 
     $responseOutput.append(data.message).slideDown('fast');
-    $responseOutput.attr('role', 'alert');
-
-    $.wpcf7UpdateScreenReaderResponse($form, data);
+    $responseOutput.attr('role', 'alert').focus();
   };
 
   $.fn.wpcf7ExclusiveCheckbox = function() {
@@ -299,7 +299,6 @@
   $.fn.wpcf7RefillCaptcha = function(captcha) {
     return this.each(function() {
       var form = $(this);
-
       $.each(captcha, function(i, n) {
         form.find(':input[name="' + i + '"]').clearFields();
         form.find('img.wpcf7-captcha-' + i).attr('src', n);
@@ -312,7 +311,6 @@
   $.fn.wpcf7RefillQuiz = function(quiz) {
     return this.each(function() {
       var form = $(this);
-
       $.each(quiz, function(i, n) {
         form.find(':input[name="' + i + '"]').clearFields();
         form.find(':input[name="' + i + '"]').siblings('span.wpcf7-quiz-label').text(n[0]);
@@ -323,39 +321,11 @@
 
   $.fn.wpcf7ClearResponseOutput = function() {
     return this.each(function() {
-      $(this).find('div.wpcf7-response-output').hide().empty().removeClass('wpcf7-mail-sent-ok wpcf7-mail-sent-ng wpcf7-validation-errors wpcf7-spam-blocked').removeAttr('role');
-      $(this).find('span.wpcf7-not-valid-tip').remove();
-      $(this).find('img.ajax-loader').css({ visibility: 'hidden' });
+      var $form = $(this);
+      $form.parent().find('screen-reader-response').hide().empty().removeClass('wpcf7-mail-sent-ok wpcf7-mail-sent-ng wpcf7-validation-errors wpcf7-spam-blocked').removeAttr('role');
+      $form.find('span.wpcf7-not-valid-tip').remove();
+      $form.find('img.ajax-loader').css({ visibility: 'hidden' });
     });
-  };
-
-  $.wpcf7UpdateScreenReaderResponse = function($form, data) {
-    $('.wpcf7 .screen-reader-response').html('').attr('role', '');
-
-    if (data.message) {
-      var $response = $form.siblings('.screen-reader-response').first();
-      $response.append(data.message);
-
-      /* エラーメッセージの詳細は表示しない
-      if (data.invalids) {
-        var $invalids = $('<ul></ul>');
-        var $li;
-        $.each(data.invalids, function(i, n) {
-          if (n.idref) {
-            $li = $('<li></li>').append($('<a></a>').attr('href', '#' + n.idref).append(n.message));
-          } else {
-            $li = $('<li></li>').append(n.message);
-          }
-
-          $invalids.append($li);
-        });
-
-        $response.append($invalids);
-      }
-      */
-
-      $response.attr('role', 'alert').focus();
-    }
   };
 
   $.wpcf7SupportHtml5 = function() {

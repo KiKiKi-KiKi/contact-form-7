@@ -273,8 +273,10 @@ class WPCF7_ContactForm {
 		$html .= $this->form_hidden_fields();
 		$html .= $this->form_elements();
 
+		/*
 		if ( ! $this->responses_count )
 			$html .= $this->form_response_output();
+		*/
 
 		$html .= '</form>';
 		$html .= '</div>';
@@ -344,7 +346,7 @@ class WPCF7_ContactForm {
 	}
 
 	public function screen_reader_response() {
-		$class = 'screen-reader-response';
+		$class = 'screen-reader-response messageBox';
 		$role = '';
 		$content = '';
 
