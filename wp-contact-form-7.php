@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Contact Form 7 extend
+Plugin Name: Contact Form 7 for m&i
 Plugin URI: https://github.com/chaika-design/Contact-Form-7
 Author: Chaika
 */
