@@ -112,7 +112,8 @@
       $form.addClass('sent');
 
       if (data.onSentOk){
-        $.each(data.onSentOk, function(i, n) { eval(n) });
+        // TODO: check eval(n);
+        $.each(data.onSentOk, function(i, n) { eval(n); });
       }
 
       $(data.into).trigger('mailsent.wpcf7');
@@ -125,7 +126,8 @@
     }
 
     if (data.onSubmit){
-      $.each(data.onSubmit, function(i, n) { eval(n) });
+      // TODO: check eval(n);
+      $.each(data.onSubmit, function(i, n) {eval(n); });
     }
 
     $(data.into).trigger('submit.wpcf7');
@@ -163,7 +165,7 @@
       });
 
       $(this).blur(function() {
-        if ('' == $(this).val()) {
+        if ('' === $(this).val()) {
           $(this).val($(this).attr('placeholder'));
           $(this).addClass('placeheld');
         }
@@ -200,7 +202,7 @@
       acceptances.each(function(i, n) {
         n = $(n);
         if (n.hasClass('wpcf7-invert') && n.is(':checked')
-        || ! n.hasClass('wpcf7-invert') && ! n.is(':checked'))
+          || ! n.hasClass('wpcf7-invert') && ! n.is(':checked'))
           submit.attr('disabled', 'disabled');
       });
     });
