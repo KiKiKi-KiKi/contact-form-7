@@ -59,7 +59,7 @@ function wpcf7_select_shortcode_handler( $tag ) {
 		array_unshift( $labels, '---' );
 		array_unshift( $values, '' );
 	} elseif ( $first_as_label ) {
-		$values[0] = '';
+		$values[0] = "";
 	}
 
 	$html = '';
@@ -84,10 +84,14 @@ function wpcf7_select_shortcode_handler( $tag ) {
 			'value' => $value,
 			'selected' => $selected ? 'selected' : '' );
 
-		$item_atts = wpcf7_format_atts( $item_atts );
+		if( $first_as_label ) {
+			$item_atts = wpcf7_select_first_as_label_atts($item_atts);
+		} else {
+			$item_atts = wpcf7_format_atts( $item_atts );
+		}
 
 		$label = isset( $labels[$key] ) ? $labels[$key] : $value;
-
+		//var_dump($item_atts);
 		$html .= sprintf( '<option %1$s>%2$s</option>',
 			$item_atts, esc_html( $label ) );
 	}
@@ -102,7 +106,6 @@ function wpcf7_select_shortcode_handler( $tag ) {
 	$html = sprintf(
 		'<span class="wpcf7-form-control-wrap %1$s"><select %2$s>%3$s</select>%4$s</span>',
 		sanitize_html_class( $tag->name ), $atts, $html, $validation_error );
-
 	return $html;
 }
 
