@@ -147,6 +147,7 @@
       $form.resetForm();
       $form.find('input:checkbox').trigger('checkbox.changed');
       $form.find('input:radio').trigger('radio.changed');
+      $form.find('select').val('').trigger('change');
       $form.wpcf7ToggleSubmit();
       setTimeout(function() {
         $responseOutput.slideUp(300, function() {
