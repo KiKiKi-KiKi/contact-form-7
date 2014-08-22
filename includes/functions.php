@@ -226,31 +226,6 @@ function wpcf7_format_atts( $atts ) {
 	return $html;
 }
 
-function wpcf7_select_first_as_label_atts( $atts ) {
-	$html = '';
-
-	$prioritized_atts = array( 'type', 'name', 'value' );
-
-	foreach ( $prioritized_atts as $att ) {
-		if ( isset( $atts[$att] ) ) {
-			$value = trim( $atts[$att] );
-			$html .= sprintf( ' %s="%s"', $att, esc_attr( $value ) );
-			unset( $atts[$att] );
-		}
-	}
-
-	foreach ( $atts as $key => $value ) {
-		$value = trim( $value );
-
-		if ( '' !== $value ) {
-			$html .= sprintf( ' %s="%s"', $key, esc_attr( $value ) );
-		}
-	}
-	$html = trim( $html );
-
-	return $html;
-}
-
 function wpcf7_load_textdomain( $locale = null ) {
 	global $l10n;
 
