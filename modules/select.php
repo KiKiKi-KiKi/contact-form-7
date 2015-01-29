@@ -100,11 +100,7 @@ function wpcf7_select_shortcode_handler( $tag ) {
 			'value' => $value,
 			'selected' => $selected ? 'selected' : '' );
 
-		if( $first_as_label ) {
-			$item_atts = wpcf7_select_first_as_label_atts($item_atts);
-		} else {
-			$item_atts = wpcf7_format_atts( $item_atts );
-		}
+		$item_atts = wpcf7_format_atts( $item_atts );
 
 		$label = isset( $labels[$key] ) ? $labels[$key] : $value;
 		//var_dump($item_atts);
