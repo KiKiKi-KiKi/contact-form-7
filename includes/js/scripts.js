@@ -431,10 +431,11 @@
         var $invalids = $('<ul></ul>');
 
         $.each(data.invalids, function(i, n) {
+          var $li;
           if (n.idref) {
-            var $li = $('<li></li>').append($('<a></a>').attr('href', '#' + n.idref).append(n.message));
+            $li = $('<li></li>').append($('<a></a>').attr('href', '#' + n.idref).append(n.message));
           } else {
-            var $li = $('<li></li>').append(n.message);
+            $li = $('<li></li>').append(n.message);
           }
 
           $invalids.append($li);
