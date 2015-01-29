@@ -1,6 +1,11 @@
+// className:
+//  wpcf7-not-valid -> error
+//  wpcf7-spam-blocked -> spam-blocked error
+//  wpcf7-mail-sent-ng -> mail-sent-ng error
+//  wpcf7-mail-sent-ok -> success
 (function($) {
 
-  if (typeof _wpcf7 == 'undefined' || _wpcf7 === null){
+  if (typeof _wpcf7 == 'undefined' || _wpcf7 === null) {
     _wpcf7 = {
       loaderUrl: '/assets/images/loader.gif',
       sending: 'loading'
@@ -21,7 +26,7 @@
       beforeSubmit: function(arr, $form, options) {
         $form.wpcf7ClearResponseOutput();
         $form.find('[aria-invalid]').attr('aria-invalid', 'false');
-        $form.find('.ajax-loader').addClass('loading');
+        $form.find('img.ajax-loader').addClass('loading');
         return true;
       },
       beforeSerialize: function($form, options) {
@@ -74,6 +79,12 @@
         });
       });
     }
+
+    this.find('.wpcf7-character-count').wpcf7CharacterCount();
+
+    this.find('.wpcf7-validates-as-url').change(function() {
+      $(this).wpcf7NormalizeUrl();
+    });
   };
 
   $.wpcf7AjaxSuccess = function(data, status, xhr, $form) {
@@ -81,6 +92,8 @@
       return;
     }
 
+    // Error Message position change 
+    // #2c4c1051f0f9feb1bd289110f43439529718747b
     var $responseOutput = $form.parent().find('.screen-reader-response');
     $form.wpcf7ClearResponseOutput();
 
@@ -135,7 +148,7 @@
       $(data.into).trigger('mailfailed.wpcf7');
     }
 
-    if (data.onSubmit){
+    if (data.onSubmit) {
       // TODO: check eval(n);
       console.log(n);
       $.each(data.onSubmit, function(i, n) {eval(n); });
@@ -143,8 +156,10 @@
 
     $(data.into).trigger('submit.wpcf7');
 
-    if (1 == data.mailSent){
+    if (1 == data.mailSent) {
       $form.resetForm();
+      // フォームのリセット
+      // #1dd713f038c965f19dc41ea0519d40b030aa633b
       $form.find('input:checkbox').trigger('checkbox.changed');
       $form.find('input:radio').trigger('radio.changed');
       $form.find('select').val('').trigger('change');
@@ -160,8 +175,12 @@
       $(n).val($(n).attr('placeholder'));
     });
 
+    // フォームのリセット
+    // #1dd713f038c965f19dc41ea0519d40b030aa633b
     $('html, body').scrollTop($responseOutput.offset().top - margin);
     $responseOutput.append(data.message).attr('role', 'alert').slideDown('fast');
+
+    $.wpcf7UpdateScreenReaderResponse($form, data);
   };
 
   $.fn.wpcf7ExclusiveCheckbox = function() {
@@ -194,6 +213,8 @@
 
   $.fn.wpcf7AjaxLoader = function() {
     return this.each(function() {
+      // Change Loader
+      // #f2a5288d03a400e831c7b0f6dc70673a183a23b4
       var loader = $('<div class="ajax-loader"><img class="loader" src="' + _wpcf7.loaderUrl + '" alt="' + _wpcf7.sending + '" /></div>');
       $(this).after(loader);
     });
@@ -201,6 +222,8 @@
 
   $.fn.wpcf7ToggleSubmit = function() {
     return this.each(function() {
+      // 送信前確認チェックの挙動変更
+      // #3449468ff0bd78c57deb454d7e125d4cef306205
       var $form = $(this);
       if (this.tagName.toLowerCase() != 'form'){
         $form = $(this).find('form').first();
@@ -258,6 +281,57 @@
     });
   };
 
+  $.fn.wpcf7CharacterCount = function() {
+    return this.each(function() {
+      var $count = $(this);
+      var name = $count.attr('data-target-name');
+      var down = $count.hasClass('down');
+      var starting = parseInt($count.attr('data-starting-value'), 10);
+      var maximum = parseInt($count.attr('data-maximum-value'), 10);
+      var minimum = parseInt($count.attr('data-minimum-value'), 10);
+
+      var updateCount = function($target) {
+        var length = $target.val().length;
+        var count = down ? starting - length : length;
+        $count.attr('data-current-value', count);
+        $count.text(count);
+
+        if (maximum && maximum < length) {
+          $count.addClass('too-long');
+        } else {
+          $count.removeClass('too-long');
+        }
+
+        if (minimum && length < minimum) {
+          $count.addClass('too-short');
+        } else {
+          $count.removeClass('too-short');
+        }
+      };
+
+      $count.closest('form').find(':input[name="' + name + '"]').each(function() {
+        updateCount($(this));
+
+        $(this).keyup(function() {
+          updateCount($(this));
+        });
+      });
+    });
+  };
+
+  $.fn.wpcf7NormalizeUrl = function() {
+    return this.each(function() {
+      var val = $.trim($(this).val());
+
+      if (! val.match(/^[a-z][a-z0-9.+-]*:/i)) { // check the scheme part
+        val = val.replace(/^\/+/, '');
+        val = 'http://' + val;
+      }
+
+      $(this).val(val);
+    });
+  };
+
   // Show Error Tooltip
   $.fn.wpcf7NotValidTip = function(message) {
     return this.each(function() {
@@ -311,6 +385,7 @@
   $.fn.wpcf7RefillCaptcha = function(captcha) {
     return this.each(function() {
       var form = $(this);
+
       $.each(captcha, function(i, n) {
         form.find(':input[name="' + i + '"]').clearFields();
         form.find('img.wpcf7-captcha-' + i).attr('src', n);
@@ -323,6 +398,7 @@
   $.fn.wpcf7RefillQuiz = function(quiz) {
     return this.each(function() {
       var form = $(this);
+
       $.each(quiz, function(i, n) {
         form.find(':input[name="' + i + '"]').clearFields();
         form.find(':input[name="' + i + '"]').siblings('span.wpcf7-quiz-label').text(n[0]);
@@ -333,11 +409,42 @@
 
   $.fn.wpcf7ClearResponseOutput = function() {
     return this.each(function() {
+      // エラーメッセージはフォームの先頭のみで表示
+      //  #2c4c1051f0f9feb1bd289110f43439529718747b
+      // クラス名変更, resetForm後にradio, checkboxのchangeイベントをトリガーする, 送信完了の場合は5秒後にメッセージボックスを閉じる
+      //  #1dd713f038c965f19dc41ea0519d40b030aa633b
       var $form = $(this);
       $form.parent().find('.screen-reader-response').hide().empty().removeClass('success wpcf7-mail-sent-ng spam-blocked error').removeAttr('role');
       $form.find('span.wpcf7-not-valid-tip').remove();
       $form.find('.ajax-loader').removeClass('loading');
     });
+  };
+
+  $.wpcf7UpdateScreenReaderResponse = function($form, data) {
+    $('.wpcf7 .screen-reader-response').html('').attr('role', '');
+
+    if (data.message) {
+      var $response = $form.siblings('.screen-reader-response').first();
+      $response.append(data.message);
+
+      if (data.invalids) {
+        var $invalids = $('<ul></ul>');
+
+        $.each(data.invalids, function(i, n) {
+          if (n.idref) {
+            var $li = $('<li></li>').append($('<a></a>').attr('href', '#' + n.idref).append(n.message));
+          } else {
+            var $li = $('<li></li>').append(n.message);
+          }
+
+          $invalids.append($li);
+        });
+
+        $response.append($invalids);
+      }
+
+      $response.attr('role', 'alert').focus();
+    }
   };
 
   $.wpcf7SupportHtml5 = function() {
