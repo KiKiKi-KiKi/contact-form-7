@@ -26,7 +26,7 @@
       beforeSubmit: function(arr, $form, options) {
         $form.wpcf7ClearResponseOutput();
         $form.find('[aria-invalid]').attr('aria-invalid', 'false');
-        $form.find('img.ajax-loader').addClass('loading');
+        $form.find('.ajax-loader').addClass('loading');
         return true;
       },
       beforeSerialize: function($form, options) {
@@ -215,7 +215,7 @@
     return this.each(function() {
       // Change Loader
       // #f2a5288d03a400e831c7b0f6dc70673a183a23b4
-      var loader = $('<div class="ajax-loader"><img class="loader" src="' + _wpcf7.loaderUrl + '" alt="' + _wpcf7.sending + '" /></div>');
+      var loader = $('<div class="ajax-loader"><img class="loading-image" src="' + _wpcf7.loaderUrl + '" alt="' + _wpcf7.sending + '" /></div>');
       $(this).after(loader);
     });
   };
@@ -336,8 +336,7 @@
   $.fn.wpcf7NotValidTip = function(message) {
     return this.each(function() {
       var $into = $(this);
-      $into.find('span.wpcf7-not-valid-tip').remove();
-      $into.append('<span role="alert" class="wpcf7-not-valid-tip">' + message + '</span>');
+      $into.hide().append('<span role="alert" class="wpcf7-not-valid-tip messageLabel error">' + message + '</span>').slideDown('fast');
 
       if ($into.is('.use-floating-validation-tip *')) {
         $('.wpcf7-not-valid-tip', $into).mouseover(function() {
